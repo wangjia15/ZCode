@@ -5,6 +5,7 @@ import {
   type ModelTextResult,
   type ModelToolResult,
   type ModelUsage,
+  type WebSearchBackendResult,
   type WebSearchInput,
   type WebSearchOutput,
   type WebSearchResultItem,
@@ -36,6 +37,27 @@ export function buildWebSearchOutput(
     durationMs: Date.now() - startedAt,
     webSearchRequests: result.usage.serverToolUse?.webSearchRequests,
     modelUsage,
+  };
+}
+
+/**
+ * 后端结果不回填 modelUsage：那是搜索后端（如 Gemini）的 token，不属于会话模型，
+ * 写进去会被 emitNestedModelUsageEvents 计入会话用量。
+ */
+export function buildBackendWebSearchOutput(
+  input: WebSearchInput,
+  result: WebSearchBackendResult,
+  startedAt: number,
+): WebSearchOutput {
+  const sources = dedupeSources(result.sources);
+  return {
+    query: input.query,
+    results: sources,
+    sources,
+    summary: result.summary?.trim() || undefined,
+    durationMs: Date.now() - startedAt,
+    ...(result.searchQueries.length > 0 ? { webSearchRequests: result.searchQueries.length } : {}),
+    backend: { provider: result.provider, model: result.model },
   };
 }
 

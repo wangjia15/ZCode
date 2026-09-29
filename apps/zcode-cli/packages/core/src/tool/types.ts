@@ -11,6 +11,7 @@ import type {
   BrowserControlPort,
   FileSystemPort,
   HttpClientPort,
+  WebSearchBackendPort,
   ImageProcessorPort,
   PdfDocumentPort,
   ModelMessageContent,
@@ -152,6 +153,8 @@ export interface ToolExecutionContext {
   browserDocumentationRoot?: string;
   fileSystemPort?: FileSystemPort;
   httpClientPort?: HttpClientPort;
+  /** 独立搜索后端；在场时 WebSearch 优先走它，不再使用当前模型的原生搜索。 */
+  webSearchBackendPort?: WebSearchBackendPort;
   imageProcessorPort?: ImageProcessorPort;
   pdfDocumentPort?: PdfDocumentPort;
   model?: Model;

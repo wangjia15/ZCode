@@ -37,6 +37,7 @@ import {
   type ToolArtifactStorePort,
   type TraceContext,
   type WorkflowDefinition,
+  type WebSearchBackendPort,
 } from "@zcode/contracts";
 import { collectDisabledPaths } from "../skill-command-overrides.js";
 import type { PrepareUserExecutionBoundary, ZCodeAppOptions } from "./types.js";
@@ -54,6 +55,7 @@ interface CreateWorkflowFacadeDeps {
   executionPort?: ExecutionPort;
   fileSystemPort?: FileSystemPort;
   httpClientPort?: HttpClientPort;
+  webSearchBackendPort?: WebSearchBackendPort;
   imageProcessorPort: ImageProcessorPort;
   pdfDocumentPort?: PdfDocumentPort;
   logger: Logger;
@@ -321,6 +323,7 @@ function createWorkflowChildRuntime(
           noProxy: deps.configResult.config.network.noProxy,
           caCertFile: deps.configResult.config.network.caCertFile,
         }),
+      webSearchBackendPort: deps.webSearchBackendPort,
       imageProcessorPort: deps.imageProcessorPort,
       pdfDocumentPort: deps.pdfDocumentPort,
       artifactStore: deps.artifactStore,

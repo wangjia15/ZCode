@@ -74,6 +74,7 @@ import type {
   OffPeakPort,
   FileSystemPort,
   HttpClientPort,
+  WebSearchBackendPort,
   ImageProcessorPort,
   PdfDocumentPort,
   HooksRuntimeConfig,
@@ -332,6 +333,8 @@ export interface AgentRuntimeDeps {
   browserControlPort?: BrowserControlPort;
   fileSystemPort?: FileSystemPort;
   httpClientPort?: HttpClientPort;
+  /** 独立搜索后端；在场时 WebSearch 对所有模型暴露并优先走它。 */
+  webSearchBackendPort?: WebSearchBackendPort;
   imageProcessorPort?: ImageProcessorPort;
   pdfDocumentPort?: PdfDocumentPort;
   skillPort?: SkillPort;

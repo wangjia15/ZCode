@@ -266,6 +266,8 @@ function filterRuntimeVisibleTools(
 }
 
 function shouldExposeWebSearch(this: AgentRuntimeInternal, model?: Model): boolean {
+  // 独立搜索后端与模型能力无关：配置了就对所有模型暴露（Gemini 优先，见 docs/specs/web-search-gemini.md）。
+  if (this.webSearchBackendPort) return true;
   // 无 Model 的调用只枚举完整注册表，供持久化和 UI 元数据使用；真实执行始终传入
   // 当前 Active Model，并只读取其冻结的完整能力事实。
   if (!model) return true;

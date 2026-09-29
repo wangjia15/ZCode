@@ -106,6 +106,14 @@ export const WebSearchOutputSchema = z
     durationMs: z.number().nonnegative(),
     webSearchRequests: z.number().int().nonnegative().optional(),
     modelUsage: WebSearchModelUsageSchema.optional(),
+    /** 非原生路径的执行后端；原生搜索时缺席。 */
+    backend: z
+      .object({
+        provider: z.literal("gemini"),
+        model: z.string().min(1),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 
@@ -128,7 +136,7 @@ export const WEBSEARCH_TOOL_CONTRACT: ToolContractDeclaration = {
   permission: {
     permission: "websearch",
     reason:
-      "WebSearch performs read-only provider-native web searches through an internal model request",
+      "WebSearch performs read-only web searches through the configured search backend or an internal provider-native model request",
     riskLevel: "low",
     sideEffectScope: "network",
     needsApproval: false,

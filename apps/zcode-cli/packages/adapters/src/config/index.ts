@@ -7,6 +7,8 @@ import {
   type RuntimeConfig,
   type RuntimeConfigPatch,
   type Unsubscribe,
+  type WebSearchRuntimeConfig,
+  type WebSearchRuntimeConfigPatch,
   type ConfigObserver,
   type ConfigPort,
   ConfigScope,
@@ -206,6 +208,10 @@ class ConfigStore {
         scope,
       );
     }
+    if (config.webSearch) {
+      const previous = this.get(ConfigKey.WebSearch) ?? DefaultConfig.webSearch;
+      this.set(ConfigKey.WebSearch, mergeWebSearchConfig(previous, config.webSearch), scope);
+    }
     if (config.ui?.locale !== undefined) {
       this.set(ConfigKey.UiLocale, config.ui.locale, scope);
     }
@@ -329,6 +335,7 @@ export class ConfigPortImpl implements ConfigPort {
       modelAnomalyGuard:
         this.store.get(ConfigKey.ModelAnomalyGuard) ?? DefaultConfig.modelAnomalyGuard,
       hooks: this.store.get(ConfigKey.Hooks) ?? DefaultConfig.hooks,
+      webSearch: this.store.get(ConfigKey.WebSearch) ?? DefaultConfig.webSearch,
       ui: {
         locale: this.store.get(ConfigKey.UiLocale) ?? DefaultConfig.ui.locale,
         theme: this.store.get(ConfigKey.UiTheme) ?? DefaultConfig.ui.theme,
@@ -439,6 +446,8 @@ function getDefaultValue(key: ConfigKey): unknown {
       return defaults.modelAnomalyGuard;
     case ConfigKey.Hooks:
       return defaults.hooks;
+    case ConfigKey.WebSearch:
+      return defaults.webSearch;
     case ConfigKey.UiLocale:
       return defaults.ui.locale;
     case ConfigKey.UiTheme:
@@ -450,6 +459,16 @@ function getDefaultValue(key: ConfigKey): unknown {
 
 function hasDefaultValue(key: ConfigKey): boolean {
   return getDefaultValue(key) !== undefined;
+}
+
+function mergeWebSearchConfig(
+  previous: WebSearchRuntimeConfig,
+  next: WebSearchRuntimeConfigPatch,
+): WebSearchRuntimeConfig {
+  return {
+    provider: next.provider ?? previous.provider,
+    gemini: { ...previous.gemini, ...next.gemini },
+  };
 }
 
 // ============================================================

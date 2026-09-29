@@ -15,6 +15,7 @@ import type {
   OffPeakPort,
   FileSystemPort,
   HttpClientPort,
+  WebSearchBackendPort,
   ImageProcessorPort,
   PdfDocumentPort,
   Logger,
@@ -92,6 +93,7 @@ export interface ToolExecutorOptions {
   browserDocumentationRoot?: string;
   fileSystemPort?: FileSystemPort;
   httpClientPort?: HttpClientPort;
+  webSearchBackendPort?: WebSearchBackendPort;
   imageProcessorPort?: ImageProcessorPort;
   pdfDocumentPort?: PdfDocumentPort;
   model?: Model;
@@ -198,6 +200,7 @@ export interface ToolExecutorDeps {
   browserDocumentationRoot?: string;
   fileSystemPort?: FileSystemPort;
   httpClientPort?: HttpClientPort;
+  webSearchBackendPort?: WebSearchBackendPort;
   imageProcessorPort?: ImageProcessorPort;
   pdfDocumentPort?: PdfDocumentPort;
   model?: Model;

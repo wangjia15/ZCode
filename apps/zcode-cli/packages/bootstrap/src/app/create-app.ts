@@ -11,6 +11,7 @@ import {
 } from "@zcode/adapters/exec";
 import { createNodeFileSystemAdapter } from "@zcode/adapters/fs";
 import { createNodeWebFetchHttpClientAdapter } from "@zcode/adapters/http";
+import { createGeminiWebSearchBackend } from "@zcode/adapters/web-search";
 import { createJimpImageProcessorAdapter } from "@zcode/adapters/image";
 import { createPopplerPdfDocumentAdapter } from "@zcode/adapters/pdf";
 import { createNodeSessionMailboxAdapter } from "@zcode/adapters/mailbox";
@@ -415,6 +416,23 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
         noProxy: configResult.config.network.noProxy,
         caCertFile: configResult.config.network.caCertFile,
       });
+    // WebSearch 独立后端：仅在用户显式配置 provider=gemini 时构造；端口在场即 Gemini 优先，
+    // 主会话、子代理与 workflow 子会话共用这一份（docs/specs/web-search-gemini.md）。
+    const webSearchBackendPort =
+      configResult.config.webSearch.provider === "gemini"
+        ? createGeminiWebSearchBackend({
+            config: configResult.config.webSearch.gemini,
+            env: options.env ?? process.env,
+            httpClientPort,
+          })
+        : undefined;
+    if (webSearchBackendPort) {
+      logger.info("WebSearch backend configured", {
+        module: "bootstrap",
+        provider: webSearchBackendPort.provider,
+        model: webSearchBackendPort.model,
+      });
+    }
     markMcpAdapterInitialized({
       configuredMcpServers,
       hasInjectedMcpPort: options.mcpPort !== undefined,
@@ -562,6 +580,7 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
       configResult,
       fileSystemPort,
       httpClientPort,
+      webSearchBackendPort,
       imageProcessorPort,
       pdfDocumentPort,
       logger,
@@ -632,6 +651,7 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
                   configResult,
                   fileSystemPort,
                   httpClientPort,
+                  webSearchBackendPort,
                   imageProcessorPort,
                   logger,
                   mcpPort,
@@ -737,6 +757,7 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
       browserControlPort,
       fileSystemPort,
       httpClientPort,
+      webSearchBackendPort,
       imageProcessorPort,
       pdfDocumentPort,
       artifactStore,
@@ -831,6 +852,7 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
       eventSink: options.eventSink,
       imageProcessorPort,
       pdfDocumentPort,
+      webSearchBackendPort,
       logger,
       mcpPort,
       modelFactory,

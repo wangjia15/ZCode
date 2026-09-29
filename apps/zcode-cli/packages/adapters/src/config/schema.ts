@@ -224,6 +224,22 @@ const modelAnomalyGuardSchema = z.object({
   maxBudgetWarningsPerTurn: z.number().int().nonnegative().optional(),
 });
 
+// baseUrl 的合法性在 Gemini adapter 调用时校验并报 configuration_error，
+// 这里不做 url() 校验，避免一个写错的搜索地址让整份配置文件失效。
+const webSearchSchema = z
+  .object({
+    provider: z.enum(["native", "gemini"]).optional(),
+    gemini: z
+      .object({
+        apiKey: z.string().min(1).optional(),
+        model: z.string().min(1).optional(),
+        baseUrl: z.string().min(1).optional(),
+      })
+      .strict()
+      .optional(),
+  })
+  .strict();
+
 // Hooks schema：
 // 理想态是 re-export shared/workspace-hook-config，但两个 pnpm workspace 解析出物理
 // 不同的 zod 实例（adapters 4.4.3 / shared 4.3.6）：shared schema 嵌入本包组合 schema
@@ -302,6 +318,7 @@ export const ZCodeConfigFileSchema = z
     toolConcurrency: toolConcurrencySchema.optional(),
     modelAnomalyGuard: modelAnomalyGuardSchema.optional(),
     hooks: hooksSchema.optional(),
+    webSearch: webSearchSchema.optional(),
   })
   .passthrough();
 
@@ -419,6 +436,7 @@ function parsedConfigFileToRuntimePatch(parsed: ZCodeConfigFile): RuntimeConfigP
   if (parsed.toolConcurrency) config.toolConcurrency = parsed.toolConcurrency;
   if (parsed.modelAnomalyGuard) config.modelAnomalyGuard = parsed.modelAnomalyGuard;
   if (parsed.hooks) config.hooks = parsed.hooks;
+  if (parsed.webSearch) config.webSearch = parsed.webSearch;
 
   return config;
 }

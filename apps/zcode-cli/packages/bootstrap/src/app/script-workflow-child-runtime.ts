@@ -30,6 +30,7 @@ import {
   type WorkflowAgentCallInput,
   type WorkflowEscalatePort,
   type WorkflowSubmitPort,
+  type WebSearchBackendPort,
 } from "@zcode/contracts";
 import { collectDisabledPaths } from "../skill-command-overrides.js";
 import { parseProviderQualifiedModelSelection } from "./provider-registry-selection.js";
@@ -44,6 +45,7 @@ export interface ScriptWorkflowAgentRuntimeDeps {
   contextSourcePort?: ContextSourcePort;
   fileSystemPort: FileSystemPort;
   httpClientPort?: HttpClientPort;
+  webSearchBackendPort?: WebSearchBackendPort;
   imageProcessorPort: ImageProcessorPort;
   pdfDocumentPort?: PdfDocumentPort;
   logger: Logger;
@@ -212,6 +214,7 @@ function createRuntimeDeps(
         caCertFile: deps.configResult.config.network.caCertFile,
         timeoutMs: deps.configResult.config.network.timeout,
       }),
+    webSearchBackendPort: deps.webSearchBackendPort,
     imageProcessorPort: deps.imageProcessorPort,
     pdfDocumentPort: deps.pdfDocumentPort,
     logger: deps.logger,

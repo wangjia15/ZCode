@@ -204,6 +204,7 @@ export type {
   ExecutionShellSelection,
   FileSystemPort,
   HttpClientPort,
+  WebSearchBackendPort,
   ImageProcessorPort,
   PdfDocumentPort,
   InteractionRequestOrigin,

@@ -23,7 +23,11 @@ import {
 } from "@zcode/contracts";
 import type { ToolEntry, ToolHandler } from "../types.js";
 import { auxiliaryModelOptions } from "../../model/auxiliary-model-options.js";
-import { buildWebSearchOutput, formatWebSearchModelContent } from "./websearch-results.js";
+import {
+  buildBackendWebSearchOutput,
+  buildWebSearchOutput,
+  formatWebSearchModelContent,
+} from "./websearch-results.js";
 import { webSearchTraceFromContext } from "./websearch-support.js";
 
 const WEBSEARCH_TOOL_NAME = "WebSearch";
@@ -59,6 +63,22 @@ function buildWebSearchProviderDescription(now: Date = new Date()): string {
 
 const webSearchHandler: ToolHandler<WebSearchInput, WebSearchOutput> = async (input, context) => {
   const startedAt = Date.now();
+
+  // 配置了独立搜索后端（如 Gemini）时一律优先走后端，与当前模型能力无关；
+  // 端口在场与否是唯一路由事实，见 docs/specs/web-search-gemini.md。
+  const backend = context.webSearchBackendPort;
+  if (backend) {
+    const result = await backend.search(
+      {
+        query: input.query,
+        allowedDomains: input.allowed_domains,
+        blockedDomains: input.blocked_domains,
+      },
+      { signal: context.abortSignal, trace: webSearchTraceFromContext(context) },
+    );
+    return buildBackendWebSearchOutput(input, result, startedAt);
+  }
+
   const model = context.model;
 
   if (!model) {

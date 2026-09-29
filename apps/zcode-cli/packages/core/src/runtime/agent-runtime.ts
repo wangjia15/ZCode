@@ -37,6 +37,7 @@ import type {
   ContextSourcePort,
   ExecutionPort,
   FileSystemPort,
+  WebSearchBackendPort,
   ImageProcessorPort,
   PdfDocumentPort,
   McpConnectionSnapshot,
@@ -180,6 +181,7 @@ export class AgentRuntime {
   private artifactStore?: ToolArtifactStorePort;
   private executionPort?: ExecutionPort;
   private fileSystemPort?: FileSystemPort;
+  private webSearchBackendPort?: WebSearchBackendPort;
   private imageProcessorPort?: ImageProcessorPort;
   private pdfDocumentPort?: PdfDocumentPort;
   private skillLoadOutcome?: SkillLoadOutcome;
@@ -286,6 +288,7 @@ export class AgentRuntime {
     this.artifactStore = deps.artifactStore;
     this.executionPort = deps.executionPort;
     this.fileSystemPort = deps.fileSystemPort;
+    this.webSearchBackendPort = deps.webSearchBackendPort;
     this.imageProcessorPort = deps.imageProcessorPort;
     this.pdfDocumentPort = deps.pdfDocumentPort;
     this.subagentPort = deps.subagentPort ?? runtime.createDefaultSubagentPort(deps);

@@ -74,6 +74,9 @@ export const ConfigKey = {
   // Hooks
   Hooks: "hooks",
 
+  // WebSearch backend
+  WebSearch: "webSearch",
+
   // UI
   UiLocale: "ui.locale",
   UiTheme: "ui.theme",
@@ -144,11 +147,13 @@ export type ConfigValue<K extends ConfigKey> = K extends "modelStream.idleTimeou
                                             ? ModelAnomalyGuardConfig
                                             : K extends "hooks"
                                               ? HooksRuntimeConfig
-                                              : K extends "ui.locale"
-                                                ? UiLocale
-                                                : K extends "ui.theme"
-                                                  ? UiThemePreference
-                                                  : unknown;
+                                              : K extends "webSearch"
+                                                ? WebSearchRuntimeConfig
+                                                : K extends "ui.locale"
+                                                  ? UiLocale
+                                                  : K extends "ui.theme"
+                                                    ? UiThemePreference
+                                                    : unknown;
 
 // ============================================================
 // Config Scope
@@ -251,6 +256,7 @@ export interface RuntimeConfig {
   toolConcurrency: ToolConcurrencyConfig;
   modelAnomalyGuard: ModelAnomalyGuardConfig;
   hooks: HooksRuntimeConfig;
+  webSearch: WebSearchRuntimeConfig;
   ui: {
     locale: UiLocale;
     theme: UiThemePreference;
@@ -274,12 +280,40 @@ export interface RuntimeConfigPatch {
   modelAnomalyGuard?: Partial<RuntimeConfig["modelAnomalyGuard"]>;
   hooks?: HooksRuntimeConfigPatch;
   ui?: Partial<RuntimeConfig["ui"]>;
+  webSearch?: WebSearchRuntimeConfigPatch;
 }
 
 export type SupportedLocale = "en-US" | "zh-CN";
 export type UiLocale = SupportedLocale | "auto";
 export type UiThemeMode = "dark" | "light";
 export type UiThemePreference = UiThemeMode | "auto";
+
+export const DEFAULT_GEMINI_WEB_SEARCH_MODEL = "gemini-2.5-flash";
+export const DEFAULT_GEMINI_WEB_SEARCH_BASE_URL =
+  "https://generativelanguage.googleapis.com/v1beta";
+
+/**
+ * WebSearch 执行后端。`native` 走当前模型的 provider-native 搜索；`gemini` 走 Gemini
+ * Google Search grounding，与当前模型无关。规则见 docs/specs/web-search-gemini.md。
+ */
+export type WebSearchProviderSetting = "native" | "gemini";
+
+export interface GeminiWebSearchConfig {
+  /** 缺省时由 adapter 依次读取 GEMINI_API_KEY、GOOGLE_API_KEY。 */
+  apiKey?: string;
+  model: string;
+  baseUrl: string;
+}
+
+export interface WebSearchRuntimeConfig {
+  provider: WebSearchProviderSetting;
+  gemini: GeminiWebSearchConfig;
+}
+
+export interface WebSearchRuntimeConfigPatch {
+  provider?: WebSearchProviderSetting;
+  gemini?: Partial<GeminiWebSearchConfig>;
+}
 
 export const DEFAULT_MODEL_STREAM_IDLE_TIMEOUT_MS = 600_000;
 
@@ -355,6 +389,13 @@ export const DefaultRuntimeConfig: RuntimeConfig = {
   ui: {
     locale: "en-US",
     theme: "auto",
+  },
+  webSearch: {
+    provider: "native",
+    gemini: {
+      model: DEFAULT_GEMINI_WEB_SEARCH_MODEL,
+      baseUrl: DEFAULT_GEMINI_WEB_SEARCH_BASE_URL,
+    },
   },
 };
 

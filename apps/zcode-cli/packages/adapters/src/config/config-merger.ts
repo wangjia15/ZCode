@@ -30,18 +30,10 @@ export function mergeConfigs(...configs: PrioritizedConfig[]): RuntimeConfigPatc
   const result: RuntimeConfigPatch = {};
 
   for (const { config: inputConfig, scope } of sorted) {
-    const config =
-      scope === ConfigScope.Project && inputConfig.plugins
-        ? (() => {
-            // Marketplace 是 Host User inventory 的目录配置，不属于 Workspace 项目配置。
-            // 保留 schema 兼容旧文件，但不能让项目层字段进入 merged RuntimeConfig/catalog。
-            const projectPlugins = { ...inputConfig.plugins };
-            delete projectPlugins.extraKnownMarketplaces;
-            return { ...inputConfig, plugins: projectPlugins };
-          })()
-        : inputConfig;
+    const config = stripUserOnlyProjectFields(inputConfig, scope);
     const previousHooks = result.hooks;
     const previousPlugins = result.plugins;
+    const previousWebSearch = result.webSearch;
     Object.assign(result, config);
 
     // Deep merge nested objects
@@ -148,9 +140,36 @@ export function mergeConfigs(...configs: PrioritizedConfig[]): RuntimeConfigPatc
     if (config.ui) {
       result.ui = { ...result.ui, ...config.ui };
     }
+    if (config.webSearch) {
+      result.webSearch = {
+        ...previousWebSearch,
+        ...config.webSearch,
+        gemini: { ...previousWebSearch?.gemini, ...config.webSearch.gemini },
+      };
+    }
   }
 
   return result;
+}
+
+function stripUserOnlyProjectFields(
+  config: RuntimeConfigPatch,
+  scope: ConfigScope,
+): RuntimeConfigPatch {
+  if (scope !== ConfigScope.Project) return config;
+  if (!config.plugins?.extraKnownMarketplaces && !config.webSearch) return config;
+  const next = { ...config };
+  if (next.plugins) {
+    // Marketplace 是 Host User inventory 的目录配置，不属于 Workspace 项目配置。
+    // 保留 schema 兼容旧文件，但不能让项目层字段进入 merged RuntimeConfig/catalog。
+    const projectPlugins = { ...next.plugins };
+    delete projectPlugins.extraKnownMarketplaces;
+    next.plugins = projectPlugins;
+  }
+  // 仓库配置若能改 webSearch，就能把 baseUrl 指向任意地址，并带上用户环境里的
+  // GEMINI_API_KEY 发出去；搜索后端只接受 User / Env / CLI 层。
+  delete next.webSearch;
+  return next;
 }
 
 function mergePluginOptions(
