@@ -293,6 +293,56 @@ Common stdout examples:
 }
 ```
 
+## Web Search Backend
+
+By default `WebSearch` runs the active model's provider-native search and is only offered to models that support it. Set `webSearch.provider` to `"gemini"` in the user config (`~/.zcode/cli/config.json`) to run every `WebSearch` call through Gemini with Google Search grounding instead, for any model:
+
+```json
+{
+  "webSearch": {
+    "provider": "gemini",
+    "gemini": {
+      "apiKey": "<your-gemini-api-key>",
+      "model": "gemini-2.5-flash"
+    }
+  }
+}
+```
+
+- `gemini.apiKey` falls back to `GEMINI_API_KEY`, then `GOOGLE_API_KEY`.
+- `gemini.model` defaults to `gemini-2.5-flash`; `gemini.baseUrl` defaults to `https://generativelanguage.googleapis.com/v1beta`.
+- `webSearch` is ignored in workspace (project) config files, so a repository cannot redirect searches or your API key.
+- Requests use the `network.*` proxy, CA, and timeout settings. See `docs/specs/web-search-gemini.md` for the full behavior.
+
+## Code Intelligence and Debugging Plugin
+
+`packages/code-intel-plugin` is a local plugin, ported from oh-my-pi (MIT), that adds two MCP tools:
+
+- `mcp__plugin_code-intel_code-intel__lsp` — language-server actions: `diagnostics`, `definition`, `type_definition`, `implementation`, `references`, `hover`, `symbols`, `rename`, `rename_file`, `code_actions`, `status`, `capabilities`, `reload`, `request`.
+- `mcp__plugin_code-intel_code-intel__debug` — Debug Adapter Protocol actions: `launch`, `attach`, `set_breakpoint`, `remove_breakpoint`, `continue`, `step_over`, `step_in`, `step_out`, `pause`, `threads`, `stack_trace`, `scopes`, `variables`, `evaluate`, `disassemble`, `read_memory`, `modules`, `loaded_sources`, `custom_request`, `output`, `sessions`, `terminate`.
+
+Build it, then add the package directory to `plugins.dirs` in `~/.zcode/cli/config.json`:
+
+```sh
+pnpm --filter @zcode/code-intel-plugin build
+```
+
+```json
+{
+  "plugins": {
+    "dirs": ["/absolute/path/to/apps/zcode-cli/packages/code-intel-plugin"]
+  }
+}
+```
+
+- Language servers and debug adapters are not bundled. Install the ones you need so they are on `PATH` or in the project's `node_modules/.bin`, for example `typescript-language-server`, `pyright`, `gopls`, `rust-analyzer`, `clangd`, `debugpy` (`python -m pip install debugpy`), `dlv`, `lldb-dap`, or `gdb`. `typescript-language-server` also needs `typescript` installed in the project.
+- Override or add servers in `.zcode/lsp.json` or `~/.zcode/lsp.json`. Override or add debug adapters in `.zcode/dap.json` or `~/.zcode/dap.json`. Both files use the same format as oh-my-pi's `lsp.json` and `dap.json`.
+- `rename`, `rename_file`, and applied `code_actions` write to disk. Pass `apply: false` to preview first.
+- Only one debug session can run at a time. Start with `launch`, which stops on entry for most adapters. Set breakpoints, `continue`, inspect, then `terminate`.
+- Set `ZCODE_CODE_INTEL_TRACE=1` to log raw LSP/DAP messages to the plugin server's stderr.
+
+See `docs/specs/code-intel-plugin.md` for full behavior, failure semantics, and what was not ported, and `packages/code-intel-plugin/README.md` for plugin details.
+
 ## Packaging Strategy
 
 1. Start with the normal Node CLI bundle from `npm run build`.

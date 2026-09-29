@@ -1,0 +1,14 @@
+{
+  "name": "code-intel",
+  "version": "0.1.0",
+  "description": "LSP code intelligence (definition, references, hover, diagnostics, rename, code actions) and DAP local debugging (launch, breakpoints, stepping, variables, evaluate) exposed as MCP tools.",
+  "author": { "name": "ZCode" },
+  "license": "MIT",
+  "mcpServers": {
+    "code-intel": {
+      "command": "node",
+      "args": ["${ZCODE_PLUGIN_ROOT}/dist/mcp/server.js"],
+      "cwd": "${ZCODE_PROJECT_DIR}"
+    }
+  }
+}
