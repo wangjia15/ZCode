@@ -209,23 +209,47 @@ function handleSelectionInputKey(
   }
   if (key.name === "backspace") {
     setSelection((current) =>
-      current
-        ? { ...current, input: { ...input, value: removeLastCharacter(input.value) } }
+      current?.input
+        ? {
+            ...current,
+            input: { ...current.input, value: removeLastCharacter(current.input.value) },
+          }
         : current,
     );
     return;
   }
   if (key.name === "u" && key.ctrl) {
-    setSelection((current) => (current ? { ...current, input: { ...input, value: "" } } : current));
+    setSelection((current) =>
+      current?.input ? { ...current, input: { ...current.input, value: "" } } : current,
+    );
     setStatus(input.clearStatus ?? DEFAULT_INPUT_CLEAR_STATUS);
     return;
   }
 
   const text = printableInputText(key);
   if (!text) return;
+  appendSelectionInputText(setSelection, text);
+}
+
+/**
+ * 追加文本必须基于 updater 里的最新 input：未启用 bracketed paste 的终端（如 Windows 旧控制台
+ * 右键粘贴）会在一次渲染前连发多个按键事件，旧实现拼接闭包里的 input.value，
+ * 结果只剩最后一个字符，表现为 API Key “粘贴不进去”。
+ */
+export function appendSelectionInputText(
+  setSelection: React.Dispatch<React.SetStateAction<SelectionState | undefined>>,
+  text: string,
+): void {
   setSelection((current) =>
-    current ? { ...current, input: { ...input, value: `${input.value}${text}` } } : current,
+    current?.input
+      ? { ...current, input: { ...current.input, value: `${current.input.value}${text}` } }
+      : current,
   );
+}
+
+/** 单行输入框只接受可见字符：粘贴内容去掉换行与控制字符（Key 末尾常带换行）。 */
+export function sanitizeSelectionInputPaste(text: string): string {
+  return [...text].filter((char) => char >= " " && char !== "\x7f").join("").trim();
 }
 
 function submitSelectedItem(

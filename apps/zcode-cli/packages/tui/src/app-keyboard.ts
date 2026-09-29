@@ -5,6 +5,7 @@ import { useCallback, useRef } from "react";
 import type { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { handleApprovalKey } from "./app-approval.js";
 import { handleSelectionKey } from "./app-input.js";
+import { useSelectionInputPaste } from "./app-selection-paste.js";
 import {
   CTRL_C_EXIT_PROMPT,
   PROMPT_DRAFT_CLEARED_STATUS,
@@ -132,6 +133,13 @@ export function useTuiKeyboardControls({
 }: UseTuiKeyboardControlsOptions): void {
   const ctrlCExitGuardRef = useRef<CtrlCExitGuard>(createCtrlCExitGuard());
   const sidebarShortcutRef = useRef<SidebarShortcutState>(createSidebarShortcutState());
+
+  useSelectionInputPaste({
+    approvalPending: approvalQueue.length > 0,
+    readOnlyView: Boolean(readOnlyView),
+    selection,
+    setSelection,
+  });
 
   useKeyboard(
     useCallback(
