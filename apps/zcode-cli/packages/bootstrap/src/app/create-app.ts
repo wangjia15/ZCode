@@ -11,7 +11,7 @@ import {
 } from "@zcode/adapters/exec";
 import { createNodeFileSystemAdapter } from "@zcode/adapters/fs";
 import { createNodeWebFetchHttpClientAdapter } from "@zcode/adapters/http";
-import { createGeminiWebSearchBackend } from "@zcode/adapters/web-search";
+import { createClaudeWebSearchBackend, createGeminiWebSearchBackend } from "@zcode/adapters/web-search";
 import { createJimpImageProcessorAdapter } from "@zcode/adapters/image";
 import { createPopplerPdfDocumentAdapter } from "@zcode/adapters/pdf";
 import { createNodeSessionMailboxAdapter } from "@zcode/adapters/mailbox";
@@ -416,16 +416,23 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
         noProxy: configResult.config.network.noProxy,
         caCertFile: configResult.config.network.caCertFile,
       });
-    // WebSearch 独立后端：仅在用户显式配置 provider=gemini 时构造；端口在场即 Gemini 优先，
-    // 主会话、子代理与 workflow 子会话共用这一份（docs/specs/web-search-gemini.md）。
+    // WebSearch 独立后端：仅在用户显式配置 provider=gemini|claude 时构造；端口在场即后端优先，
+    // 主会话、子代理与 workflow 子会话共用这一份（docs/specs/web-search-gemini.md、web-search-claude.md）。
+    const webSearchConfig = configResult.config.webSearch;
     const webSearchBackendPort =
-      configResult.config.webSearch.provider === "gemini"
+      webSearchConfig.provider === "gemini"
         ? createGeminiWebSearchBackend({
-            config: configResult.config.webSearch.gemini,
+            config: webSearchConfig.gemini,
             env: options.env ?? process.env,
             httpClientPort,
           })
-        : undefined;
+        : webSearchConfig.provider === "claude"
+          ? createClaudeWebSearchBackend({
+              config: webSearchConfig.claude,
+              env: options.env ?? process.env,
+              httpClientPort,
+            })
+          : undefined;
     if (webSearchBackendPort) {
       logger.info("WebSearch backend configured", {
         module: "bootstrap",

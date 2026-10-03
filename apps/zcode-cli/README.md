@@ -314,6 +314,24 @@ By default `WebSearch` runs the active model's provider-native search and is onl
 - `webSearch` is ignored in workspace (project) config files, so a repository cannot redirect searches or your API key.
 - Requests use the `network.*` proxy, CA, and timeout settings. See `docs/specs/web-search-gemini.md` for the full behavior.
 
+Set `webSearch.provider` to `"claude"` to search with Claude Haiku through the Anthropic Messages API `web_search` tool instead (only one backend is active at a time):
+
+```json
+{
+  "webSearch": {
+    "provider": "claude",
+    "claude": {
+      "apiKey": "<your-anthropic-api-key>",
+      "model": "claude-haiku-4-5"
+    }
+  }
+}
+```
+
+- `claude.apiKey` falls back to `ANTHROPIC_API_KEY`.
+- `claude.model` defaults to `claude-haiku-4-5`; `claude.baseUrl` defaults to `https://api.anthropic.com` (requests go to `{baseUrl}/v1/messages`).
+- `allowed_domains` / `blocked_domains` are passed to the native `web_search` tool. See `docs/specs/web-search-claude.md`.
+
 ## Code Intelligence and Debugging Plugin
 
 `packages/code-intel-plugin` is a local plugin, ported from oh-my-pi (MIT), that adds two MCP tools:

@@ -468,6 +468,7 @@ function mergeWebSearchConfig(
   return {
     provider: next.provider ?? previous.provider,
     gemini: { ...previous.gemini, ...next.gemini },
+    claude: { ...previous.claude, ...next.claude },
   };
 }
 

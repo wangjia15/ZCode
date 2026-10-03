@@ -145,6 +145,7 @@ export function mergeConfigs(...configs: PrioritizedConfig[]): RuntimeConfigPatc
         ...previousWebSearch,
         ...config.webSearch,
         gemini: { ...previousWebSearch?.gemini, ...config.webSearch.gemini },
+        claude: { ...previousWebSearch?.claude, ...config.webSearch.claude },
       };
     }
   }

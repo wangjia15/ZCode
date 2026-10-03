@@ -109,7 +109,7 @@ export const WebSearchOutputSchema = z
     /** 非原生路径的执行后端；原生搜索时缺席。 */
     backend: z
       .object({
-        provider: z.literal("gemini"),
+        provider: z.enum(["gemini", "claude"]),
         model: z.string().min(1),
       })
       .strict()

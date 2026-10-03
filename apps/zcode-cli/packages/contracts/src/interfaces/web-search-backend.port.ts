@@ -6,7 +6,7 @@ import type { TraceContext } from "../tracing/tracer.js";
 import type { WebSearchSource } from "../tools/websearch.js";
 
 /** 可替换的搜索后端 id；端口在场即表示 WebSearch 走该后端，而不是当前模型的原生搜索。 */
-export type WebSearchBackendProvider = "gemini";
+export type WebSearchBackendProvider = "gemini" | "claude";
 
 export interface WebSearchBackendRequest {
   query: string;

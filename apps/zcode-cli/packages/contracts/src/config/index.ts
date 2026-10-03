@@ -291,12 +291,14 @@ export type UiThemePreference = UiThemeMode | "auto";
 export const DEFAULT_GEMINI_WEB_SEARCH_MODEL = "gemini-2.5-flash";
 export const DEFAULT_GEMINI_WEB_SEARCH_BASE_URL =
   "https://generativelanguage.googleapis.com/v1beta";
+export const DEFAULT_CLAUDE_WEB_SEARCH_MODEL = "claude-haiku-4-5";
+export const DEFAULT_CLAUDE_WEB_SEARCH_BASE_URL = "https://api.anthropic.com";
 
 /**
  * WebSearch 执行后端。`native` 走当前模型的 provider-native 搜索；`gemini` 走 Gemini
  * Google Search grounding，与当前模型无关。规则见 docs/specs/web-search-gemini.md。
  */
-export type WebSearchProviderSetting = "native" | "gemini";
+export type WebSearchProviderSetting = "native" | "gemini" | "claude";
 
 export interface GeminiWebSearchConfig {
   /** 缺省时由 adapter 依次读取 GEMINI_API_KEY、GOOGLE_API_KEY。 */
@@ -305,14 +307,23 @@ export interface GeminiWebSearchConfig {
   baseUrl: string;
 }
 
+export interface ClaudeWebSearchConfig {
+  /** 缺省时由 adapter 读取 ANTHROPIC_API_KEY。 */
+  apiKey?: string;
+  model: string;
+  baseUrl: string;
+}
+
 export interface WebSearchRuntimeConfig {
   provider: WebSearchProviderSetting;
   gemini: GeminiWebSearchConfig;
+  claude: ClaudeWebSearchConfig;
 }
 
 export interface WebSearchRuntimeConfigPatch {
   provider?: WebSearchProviderSetting;
   gemini?: Partial<GeminiWebSearchConfig>;
+  claude?: Partial<ClaudeWebSearchConfig>;
 }
 
 export const DEFAULT_MODEL_STREAM_IDLE_TIMEOUT_MS = 600_000;
@@ -395,6 +406,10 @@ export const DefaultRuntimeConfig: RuntimeConfig = {
     gemini: {
       model: DEFAULT_GEMINI_WEB_SEARCH_MODEL,
       baseUrl: DEFAULT_GEMINI_WEB_SEARCH_BASE_URL,
+    },
+    claude: {
+      model: DEFAULT_CLAUDE_WEB_SEARCH_MODEL,
+      baseUrl: DEFAULT_CLAUDE_WEB_SEARCH_BASE_URL,
     },
   },
 };

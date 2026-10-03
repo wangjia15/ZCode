@@ -228,8 +228,16 @@ const modelAnomalyGuardSchema = z.object({
 // 这里不做 url() 校验，避免一个写错的搜索地址让整份配置文件失效。
 const webSearchSchema = z
   .object({
-    provider: z.enum(["native", "gemini"]).optional(),
+    provider: z.enum(["native", "gemini", "claude"]).optional(),
     gemini: z
+      .object({
+        apiKey: z.string().min(1).optional(),
+        model: z.string().min(1).optional(),
+        baseUrl: z.string().min(1).optional(),
+      })
+      .strict()
+      .optional(),
+    claude: z
       .object({
         apiKey: z.string().min(1).optional(),
         model: z.string().min(1).optional(),
