@@ -17,6 +17,7 @@ ZCode 是 AI 编程工作台，提供桌面应用、浏览器界面和终端 Age
 
 ## 更新
 
+- 2026-10-07：CLI 新增可替换的 WebSearch 搜索后端（Gemini Google Search grounding 与 Claude Haiku）及 code-intel 代码智能调试插件，详见 [apps/zcode-cli/README.md](apps/zcode-cli/README.md)。
 - 2026-9-23：更新至 ZCode v3.14.3 版本。
 
 ## 初始化

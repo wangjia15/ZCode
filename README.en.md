@@ -15,6 +15,7 @@ ZCode is an AI coding workspace with desktop, browser, and terminal interfaces. 
 
 ## Updates
 
+- 2026-10-07: Added pluggable CLI WebSearch backends (Gemini Google Search grounding and Claude Haiku) and the code-intel plugin for LSP and DAP debugging. See [apps/zcode-cli/README.md](apps/zcode-cli/README.md).
 - 2026-9-23: Updated to ZCode v3.14.3.
 
 ## Setup
@@ -59,6 +60,10 @@ Set `ZCODE_DATA_BASE_DIR` to use a separate development data directory. For exam
 ```bash
 ZCODE_DATA_BASE_DIR="$HOME/.zcode-dev-home" pnpm dev:desktop:test
 ```
+
+### Remote Workspaces (SSH/WSL)
+
+Run `pnpm bootstrap:with-remote` first to prepare the remote assets (mock-cdn), then run `pnpm dev:desktop`. When connecting to a remote project, choose "Download locally, then upload" for the assets. In development mode, assets are taken from the local `packages/desktop/mock-cdn` and local build outputs and uploaded to the remote host over SFTP; no CDN is accessed.
 
 ### Web Development
 
